@@ -1,8 +1,0 @@
-UserID,Age,Gender,Location,AverageCourseRating,PastCourses,SocialLinks
-admin,0,Male,"KTX Khu A, KP 6, Linh Trung, Thủ Đức, Hồ Chí Minh",0,2,NULL
-STUD001,25,Nam,789 Oak Ave,3,"2,3","INST001,INST002"
-STUD002,28,Nu,321 Pine Ln,4,"2,5",INST001
-INST004,33,Nu,321 Pine Ln,0,NULL,NULL
-INST002,38,Nu,456 Elm St,0,NULL,NULL
-INST001,43,Nam,123 Main St,0,NULL,NULL
-INST003,48,Nam,789 Oak Ave,0,NULL,NULL
