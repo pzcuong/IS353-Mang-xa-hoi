@@ -1,5 +1,8 @@
 const sql = require("mssql");
 const { config } = require('dotenv');
+const fs = require('fs');
+const csv = require('csv-parser');
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 config();
 
@@ -126,9 +129,9 @@ class User {
 
     async getUserCourses(username) {
         const data = await this.getUser(username);
-        console.log(data);
         const sql_statement = `
-            select * from Courses inner join User_Courses on Courses.CourseID = User_Courses.CourseID
+            select * from Courses 
+            inner join User_Courses on Courses.CourseID = User_Courses.CourseID
             where User_Courses.UserID = N'${data.result.UserID}'`;
         const result = await this.executeQuery("Admin", sql_statement);
         return this.returnMessage(result, true);
@@ -140,6 +143,118 @@ class User {
             true // return array
         )
     }
+
+    async getCourseDetail(CourseID) {
+        let courseDetail = await this.executeQuery("Admin", `select * from Courses where CourseID = N'${CourseID}'`);
+        let modulesDetail = await this.executeQuery("Admin", `select * from Modules where CourseID = N'${CourseID}'`);
+        let modules = [];
+
+        for (let i = 0; i < modulesDetail.result.length; i++) {
+            let module = modulesDetail.result[i];
+            let lessonsDetail = await this.executeQuery("Admin", `select * from Lessons where ModuleID = N'${module.ModuleID}'`);
+        
+            modules.push({
+                module: module,
+                lessons: lessonsDetail.result
+            });
+        }
+
+        courseDetail.result[0].modules = modules;
+        return this.returnMessage(courseDetail);
+    }
+
+    async joinCourse(UserID, CourseID) {
+        const sql_statement = `insert into User_Courses (UserID, CourseID) values (N'${UserID}', N'${CourseID}')`;
+        const result = await this.executeQuery("Admin", sql_statement); 
+        return this.returnMessage(result);
+    }
+
+    async getLessonDetail(LessonID) {
+        return this.returnMessage(
+            await this.executeQuery("Admin", `select * from Lessons where LessonID = N'${LessonID}'`)
+        )
+    }
+
+    async getComment(LessonID) {
+        let commentDetail = await this.executeQuery("Admin", `select * from Comments where LessonID = N'${LessonID}'`);
+        let comments = [];
+        for(let i = 0; i < commentDetail.result.length; i++) {
+            let comment = commentDetail.result[i];
+            let replyDetail = await this.executeQuery("Admin", `select * from Replies where CommentID = N'${comment.CommentID}'`);
+            comments.push({
+                comment: comment,
+                replies: replyDetail.result
+            });
+        }
+
+        commentDetail.result = comments;
+        return this.returnMessage(commentDetail, true);
+    }
+
+    async postComment(UserID, LessonID, Content) {
+        const sql_statement = `insert into Comments (UserID, LessonID, Comment, CommentDate) 
+            values (N'${UserID}', N'${LessonID}', N'${Content}', 'GETDATE()')`;
+        const result = await this.executeQuery("Admin", sql_statement);
+        return this.returnMessage(result);
+    }
+
+    async postReply(UserID, CommentID, Content) {
+        const sql_statement = `insert into Replies (UserID, CommentID, Reply, ReplyDate)
+            values (N'${UserID}', N'${CommentID}', N'${Content}', 'GETDATE()')`;
+        const result = await this.executeQuery("Admin", sql_statement);
+        return this.returnMessage(result);
+    }
+
+    async createDatasetRecommendCourses() {
+        // Read sql statement from file
+        const sql_statement = fs.readFileSync('./GetData.sql').toString();
+        const result = await this.executeQuery("Admin", sql_statement);
+        // Write to csv file
+        const csvWriter = createCsvWriter({
+            path: './train.csv',
+            header: [
+                {id: 'UserID', title: 'UserID'},
+                {id: 'Age', title: 'Age'},
+                {id: 'Gender', title: 'Gender'},
+                {id: 'Location', title: 'Location'},
+                {id: 'AverageCourseRating', title: 'AverageCourseRating'},
+                {id: 'PastCourses', title: 'PastCourses'},
+                {id: 'SocialLinks', title: 'SocialLinks'}
+            ]
+        });
+        let data = [];
+        for (let i = 0; i < result.result.length; i++) {
+            let row = result.result[i];
+            data.push({
+                UserID: row.UserID,
+                Age: row.Age === null ? 0 : row.Age,
+                Gender: row.Gender,
+                Location: row.Location,
+                AverageCourseRating: row.AverageCourseRating === null ? 0 : row.AverageCourseRating,
+                PastCourses: row.PastCourses === null ? 'NULL' : row.PastCourses,
+                SocialLinks: row.SocialLinks === null ? 'NULL' : row.SocialLinks
+            });
+        }
+        csvWriter.writeRecords(data)
+            .then(() => {
+                console.log('...Done');
+            });
+        return {
+            statusCode: 200,
+            message: 'Thành công',
+            result: result.result
+        };
+    }
+
+    async getRelationshipMatrix(UserID) {
+        const sql_statement = `SELECT * FROM dbo.GetRelationshipMatrix(N'${UserID}')`;
+
+        return this.returnMessage(
+            await this.executeQuery("Admin", sql_statement),
+            true // return array
+        )
+    }
+                
 }
 
 module.exports = new User();

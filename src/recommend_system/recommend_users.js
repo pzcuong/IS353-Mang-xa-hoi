@@ -53,18 +53,18 @@ class RecommendationSystem {
     return recommendations;
   }
 
-  runRecommendationSystem(userID) {
-    this.loadAndPreprocessData().then(() => {
-      const recommendations = this.generateRecommendations(userID);
-      console.log(`Recommended users for ${userID}:`);
-      recommendations.forEach((recommendation, index) => {
-        console.log(`- Recommendation ${index + 1}: User ${recommendation.userID} - Similarity: ${recommendation.similarity}`);
-      });
+  async runRecommendationSystem(userID) {
+    let return_array = [];
+    await this.loadAndPreprocessData();
+    const recommendations = this.generateRecommendations(userID);
+    console.log(`Recommended users for ${userID}:`);
+    recommendations.forEach((recommendation, index) => {
+      console.log(`- Recommendation ${index + 1}: User ${recommendation.userID} - Similarity: ${recommendation.similarity}`);
+      return_array.push(recommendation.userID);
     });
+
+    return return_array;
   }
 }
 
-// Usage example
-const filepath = './train.csv';
-const recommendationSystem = new RecommendationSystem(filepath);
-recommendationSystem.runRecommendationSystem('STUD001');
+module.exports = RecommendationSystem;

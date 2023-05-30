@@ -1,5 +1,8 @@
 // UserController.js
 const usersModels = require('./users.models');
+const recommendUsers = require('../recommend_system/recommend_users');
+const recommendCourses = require('../recommend_system/recommend_courses');
+const communityDetect = require('../recommend_system/community_detect');
 
 class UserController {
     async getUser(UserID) {
@@ -24,7 +27,7 @@ class UserController {
             }
             result.push(course);
         }
-        
+
         return {
             statusCode: 200,
             message: 'Thành công',
@@ -32,8 +35,67 @@ class UserController {
         };
     }
 
+    async getCourseDetail(CourseID) {
+        return await usersModels.getCourseDetail(CourseID);
+    }
+
+    async joinCourse(UserID, CourseID) {
+        return await usersModels.joinCourse(UserID, CourseID);
+    }
+
+    async getLessonDetail(LessonID) {
+        return await usersModels.getLessonDetail(LessonID);
+    }
+
+    async getComment(LessonID) {
+        return await usersModels.getComment(LessonID);
+    }
+
+    async postComment(UserID, LessonID, Content) {
+        return await usersModels.postComment(UserID, LessonID, Content);
+    }
+
+    async postReply(UserID, CommentID, Content) {
+        return await usersModels.postReply(UserID, CommentID, Content);
+    }
+
     async getUserCourses(UserID) {
         let result = await usersModels.getUserCourses(UserID);
+        return result;
+    }
+
+    async getRecommendUsers(UserID) {
+        const filepath = './train.csv';
+
+        const recommendationSystem = new recommendUsers(filepath);
+        const result = recommendationSystem.runRecommendationSystem(UserID);
+
+        return result;
+    }
+
+    async getRecommendCourses(UserID) {
+        await usersModels.createDatasetRecommendCourses();
+
+        const filepath = './train.csv';        
+
+        const recommendationSystem = new recommendCourses();
+        const userInfo = await usersModels.getRelationshipMatrix(UserID);
+
+        return await recommendationSystem.runRecommendationSystem(filepath, userInfo.result[0]);
+    }
+
+    async getCommunityDetect() {
+        await usersModels.createDatasetRecommendCourses();
+
+        const filepath = './train.csv';
+
+        const communityDetection = new communityDetect();
+
+        // Sử dụng lớp GraphConverter
+        await communityDetection.convertCSVToGraphData(filepath);   
+        let result = await communityDetection.runCommunityDetection();
+        console.log(result);
+
         return result;
     }
 }

@@ -74,12 +74,14 @@ class RecommendationSystem {
   }
 
   async transformData(newUser) {
-    const age = newUser["Age"] === "NULL" ? 0 : parseInt(newUser["Age"]);
+    const age = (newUser["Age"] === "NULL" || newUser["Age"] === null) ? 0 : parseInt(newUser["Age"]);
     const gender = newUser["Gender"] === "Nam" ? 0 : 1;
     const averageCourseRating =
-      newUser["AverageCourseRating"] === "NULL"
+      (newUser["AverageCourseRating"] === "NULL" || newUser["AverageCourseRating"] === null)
         ? 0
         : parseFloat(newUser["AverageCourseRating"]);
+    if (newUser["SocialLinks"] == null) 
+        newUser["SocialLinks"] = "NULL";
 
     const relationshipRow = Array(this.userCount).fill(0);
     if (newUser["SocialLinks"] !== "NULL") {
@@ -165,7 +167,7 @@ class RecommendationSystem {
     });
 
     // Train the model using the data.
-    await model.fit(tensorX, tensorY, { epochs: 10, batchSize: 32 });
+    await model.fit(tensorX, tensorY, { epochs: 10, batchSize: 32, verbose: 0 });
     this.model = model;
   }
 
@@ -178,24 +180,14 @@ class RecommendationSystem {
     );
     const predictionData = await prediction.data();
     const predictionArray = Array.from(predictionData);
-    console.log(predictionArray); // print the predicted courses
+    return predictionArray;
   }
 
   async runRecommendationSystem(file, newUser) {
     await this.transformCsv(file);
     await this.trainModel();
-    await this.predictCourses(newUser);
+    return await this.predictCourses(newUser);
   }
 }
 
-// Usage example
-const recommendationSystem = new RecommendationSystem();
-recommendationSystem.runRecommendationSystem("train.csv", {
-  UserID: "INST004",
-  Age: "33",
-  Gender: "Nu",
-  Location: "321 Pine Ln",
-  AverageCourseRating: "NULL",
-  PastCourses: "NULL",
-  SocialLinks: "STUD002",
-});
+module.exports = RecommendationSystem;
