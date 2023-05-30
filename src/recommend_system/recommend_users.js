@@ -1,10 +1,10 @@
 const csv = require('csvtojson');
 
 // Preprocess the data
-async function preprocessData() {
+async function preprocessData(filepath) {
   try {
     // Read the CSV file and convert it to JSON
-    const jsonData = await csv().fromFile('/Users/pzcuong/Desktop/SE104-QuanLyHocSinh-master/train.csv');
+    const jsonData = await csv().fromFile(filepath);
 
     // Handle missing values and convert data into suitable formats
     const processedData = jsonData.map((user) => {
@@ -66,14 +66,15 @@ function generateRecommendations(userID, data) {
 // Usage example
 async function runRecommendationSystem() {
   // Preprocess the data
-  const processedData = await preprocessData();
+  const filepath = './train.csv';
+  const processedData = await preprocessData(filepath);
 
   // Generate recommendations for a user
-  const userID = 'INST002';
+  const userID = 'admin';
   const recommendations = generateRecommendations(userID, processedData);
 
   // Print the recommendations
-  console.log(`Recommended courses for User ${userID}:`);
+  console.log(`Recommended users for ${userID}:`);
   recommendations.forEach((recommendation, index) => {
     console.log(`- Recommendation ${index + 1}: User ${recommendation.UserID} - Similarity: ${recommendation.Similarity}`);
   });
