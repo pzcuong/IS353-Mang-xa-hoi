@@ -1,3 +1,5 @@
 .vs
 node_modules
 .env
+test.sql
+train.csv
