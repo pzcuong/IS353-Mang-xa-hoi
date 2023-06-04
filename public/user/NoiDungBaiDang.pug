@@ -1,7 +1,7 @@
 extends ../header.pug
 
 block title
-  title #{NoiDung[0].TieuDe}
+  title #{notice.Title}
 
 block append script
   script(src='https://kit.fontawesome.com/7b85820244.js' crossorigin='anonymous')
@@ -29,16 +29,16 @@ block content
                   .card-body-content
                     .view-content
                       .content-head
-                          h1.content-title #{NoiDung[0].TieuDe}
+                          h1.content-title #{notice.Title}
                       .content-body
                         .content-body-main
                           .content-date
                             p.notice-up-date
-                              - let NgayDang = new Date(NoiDung[0].NgayDang)
+                              - let NgayDang = new Date(notice.Date)
                               i #{"Ngày đăng: " + NgayDang.toLocaleDateString('en-GB')}
                           .content-main(style="padding: 0px !important;")
                             //- .content-main
-                            #{NoiDung[0].NoiDung}/|
+                            #{notice.Content}/|
 
     script(src='/public/source/js/main.js')
     script. 

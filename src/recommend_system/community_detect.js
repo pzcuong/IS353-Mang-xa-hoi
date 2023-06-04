@@ -5,6 +5,48 @@ const louvain = require('graphology-communities-louvain');
 const { finished } = require('stream/promises');
 const { mod } = require('@tensorflow/tfjs-node');
 
+
+const puppeteer = require('puppeteer');
+
+async function plotGraph(graph, path) {
+  const browser = await puppeteer.launch({ headless: false });
+  const page = await browser.newPage();
+  
+  await page.setContent(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <script src="https://unpkg.com/vis-network@7.6.2/standalone/umd/vis-network.min.js"></script>
+          <style>
+              #mynetwork {
+                  width: 800px;
+                  height: 600px;
+                  background-color: white;
+              }
+          </style>
+      </head>
+      <body>
+          <div id="mynetwork"></div>
+          <script>
+              var nodes = new vis.DataSet(${JSON.stringify(graph.nodes)});
+              var edges = new vis.DataSet(${JSON.stringify(graph.edges)});
+              var container = document.getElementById('mynetwork');
+              var data = {
+                  nodes: nodes,
+                  edges: edges
+              };
+              var options = {};
+              var network = new vis.Network(container, data, options);
+          </script>
+      </body>
+      </html>
+  `);
+
+  await page.waitForNetworkIdle();
+  await page.screenshot({path: path});
+  // await browser.close();
+}
+
 class GraphConverter {
   constructor() {
     this.node_data = [];
@@ -46,7 +88,7 @@ class GraphConverter {
 
     // Add edges
     this.edge_data.forEach(edge => {
-        graph.addEdge(edge.source, edge.target, { weight: edge.weight });
+        graph.addEdge(edge.source, edge.target);
     });
 
     // Để lấy phân cắt cộng đồng
@@ -55,14 +97,15 @@ class GraphConverter {
     // Để gán trực tiếp cộng đồng làm thuộc tính nút
     louvain.assign(graph);
 
-    // Nếu bạn cần truyền tùy chọn tùy chỉnh
-    louvain.assign(graph, {
-        resolution: 0.8
-    });
+    // // Nếu bạn cần truyền tùy chọn tùy chỉnh
+    // louvain.assign(graph, {
+    //     resolution: 0.5
+    // });
 
     // Nếu bạn muốn trả về một số chi tiết về việc thực hiện thuật toán
     var details = await louvain.detailed(graph);
 
+    console.log(details)
     // Nếu bạn muốn bỏ qua trọng số của đồ thị của bạn
     louvain.assign(graph, {getEdgeWeight: null});
     return details;

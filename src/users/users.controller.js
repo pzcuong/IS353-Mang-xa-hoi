@@ -4,6 +4,7 @@ const recommendUsers = require('../recommend_system/recommend_users');
 const recommendCourses = require('../recommend_system/recommend_courses');
 const communityDetect = require('../recommend_system/community_detect');
 
+
 class UserController {
     async getUser(UserID) {
         let result = await usersModels.getUser(UserID);
@@ -39,8 +40,9 @@ class UserController {
         return await usersModels.getCourseDetail(CourseID);
     }
 
-    async joinCourse(UserID, CourseID) {
-        return await usersModels.joinCourse(UserID, CourseID);
+    async joinCourse(req, res, next) {
+        const result = await usersModels.joinCourse(req.user.result.UserID, req.params.id);
+        return res.send(result);
     }
 
     async getLessonDetail(LessonID) {
@@ -51,12 +53,13 @@ class UserController {
         return await usersModels.getComment(LessonID);
     }
 
-    async postComment(UserID, LessonID, Content) {
-        return await usersModels.postComment(UserID, LessonID, Content);
+    async postComment(req, res, next) {
+        const result = await usersModels.postComment(req.user.result.UserID, req.params.lesson_id, req.body.comment);
+        return res.send(result);
     }
 
-    async postReply(UserID, CommentID, Content) {
-        return await usersModels.postReply(UserID, CommentID, Content);
+    async postReply(req, res, next) {
+        return await usersModels.postReply(req.user.result.UserID, req.params.comment_id, req.body.reply);
     }
 
     async getUserCourses(UserID) {
@@ -64,13 +67,25 @@ class UserController {
         return result;
     }
 
+    async getNoticeGroup() {
+        return await usersModels.getNoticeGroup();
+    }
+
     async getRecommendUsers(UserID) {
         const filepath = './train.csv';
 
         const recommendationSystem = new recommendUsers(filepath);
-        const result = recommendationSystem.runRecommendationSystem(UserID);
+        const result = await recommendationSystem.runRecommendationSystem(UserID);
 
-        return result;
+        let users_info = [];
+        for(let i = 0; i < result.length; i++) {
+            let user = await usersModels.getUser(result[i]);
+            let count_same_courses = await usersModels.getUserSameCourse(UserID, result[i]);
+            users_info[i] = user.result;
+            users_info[i].count_same_courses = count_same_courses.result.num_courses;
+        }
+
+        return users_info;
     }
 
     async getRecommendCourses(UserID) {
@@ -81,7 +96,19 @@ class UserController {
         const recommendationSystem = new recommendCourses();
         const userInfo = await usersModels.getRelationshipMatrix(UserID);
 
-        return await recommendationSystem.runRecommendationSystem(filepath, userInfo.result[0]);
+        const recommend_coursesID = await recommendationSystem.runRecommendationSystem(filepath, userInfo.result[0]);
+        const courses_info = [];
+
+        for (let i = 0; i < recommend_coursesID.length; i++) {
+            let course = await usersModels.getCourseDetail(i+1);
+            courses_info.push(course.result);
+            if (courses_info[i] != undefined)
+                courses_info[i].score = recommend_coursesID[i];
+        }
+
+        const filteredCourses = courses_info.filter(course => course !== undefined);
+        filteredCourses.sort((a, b) => b.score - a.score)
+        return filteredCourses;
     }
 
     async getCommunityDetect() {
@@ -94,8 +121,26 @@ class UserController {
         // Sử dụng lớp GraphConverter
         await communityDetection.convertCSVToGraphData(filepath);   
         let result = await communityDetection.runCommunityDetection();
-        console.log(result);
 
+        const communitiesByUserId = {};
+
+        Object.entries(result.communities).forEach(([userId, communityId]) => {
+        if (!communitiesByUserId[communityId]) {
+            communitiesByUserId[communityId] = [];
+        }
+        communitiesByUserId[communityId].push(userId);
+        });
+
+        return communitiesByUserId;
+    }
+
+    async postNoticeGroup(req, res, next) {
+        const result = await usersModels.postNoticeGroup(req.body);
+        return res.send(result);
+    }
+
+    async getNotice(NoticeID) {
+        const result = await usersModels.getNotice(NoticeID);
         return result;
     }
 }

@@ -43,11 +43,11 @@ async function isAuthAdmin(req, res, next) {
 				.end();
 		}
 
-		const user = await userModle.getInfoUser(verified.data.payload.username);
+		const user = await userModle.getUser(verified.data.payload.username);
 		console.log(user)
 
-		console.log(user.result.Role);
-		if (user.role !== 'Admin') 
+		console.log(user.result.UserType);
+		if (user.result.UserType !== 'admin') 
 			return res
 				.writeHead(302, {'Location': '/auth/login'})
 				.end();

@@ -18,7 +18,7 @@ router.use(isAuth, (req, res, next) => {
 	req.locals = {
 		user: req.user.result,
 		image: req.image,
-		role: req.user.role
+		role: req.user.role,
 	};
 	user_information = req.locals;
 	next();
@@ -71,12 +71,11 @@ router.get('/courses', isAuth, async (req, res) => {
 	let recommend_courses = await userController.getRecommendCourses(req.user.result.UserID);
 	let community_detect = await userController.getCommunityDetect();
 
-	console.log("recommend_users", recommend_users);
-	console.log("recommend_courses", recommend_courses);
-	console.log("community_detect", community_detect);
-
-	const html = renderTemplate('public/user/Courses.pug', {
+	const html = renderTemplate('public/courses/courses.pug', {
 		courses: courses.result,
+		recommend_courses: recommend_courses,
+		recommend_users: recommend_users,
+		community_detect: community_detect
 	});
 	res.send(html);
 });
@@ -84,10 +83,11 @@ router.get('/courses', isAuth, async (req, res) => {
 router.route('/courses/:id')
 	.get(isAuth, async (req, res) => {
 		const course = await userController.getCourseDetail(req.params.id);
-		console.log(course.result.modules[0].lessons);
+		let recommend_courses = await userController.getRecommendCourses(req.user.result.UserID);
 
-		const html = renderTemplate('public/user/CourseDetail.pug', {
+		const html = renderTemplate('public/courses/CourseDetail.pug', {
 			course: course.result,
+			recommend_courses: recommend_courses
 		});
 		res.send(html);
 	})
@@ -98,9 +98,9 @@ router.route('/courses/:id/lesson/:lesson_id')
 		const lesson = await userController.getLessonDetail(req.params.lesson_id);
 		const comment = await userController.getComment(req.params.lesson_id);
 
-		const html = renderTemplate('public/user/LessonDetail.pug', {
+		const html = renderTemplate('public/courses/LessonDetail.pug', {
 			lesson: lesson.result,
-			comment: comment.result
+			comments: comment.result
 		});
 		res.send(html);
 	})
@@ -108,10 +108,30 @@ router.route('/courses/:id/lesson/:lesson_id')
 
 router.post('/courses/:id/lesson/:lesson_id/comment/:comment_id', isAuth, userController.postReply);
 
-router.get('/recommend_group', isAuth, async (req, res) => {
-	let community_detect = await userController.getCommunityDetect();
-	const html = renderTemplate('public/user/RecommendGroup.pug', {
-		community_detect: community_detect.result
+router.route('/recommend_group')
+	.get(isAuth, async (req, res) => {
+		let community = await userController.getNoticeGroup();
+		const html = renderTemplate('public/courses/groupNotice.pug', {
+			community: community.result
+		});
+		res.send(html);
+	})
+	.post(isAuth, userController.postNoticeGroup);
+
+router.route('/post_notice')
+	.get(isAuth, async (req, res) => {
+		let community = await userController.getNoticeGroup();
+		const html = renderTemplate('public/admin/ThemBaiDang.pug', {
+			community: community.result
+		});
+		res.send(html);
+	})
+	.post(isAuth, userController.postNoticeGroup);
+
+router.get('/notice/:NoticeID', isAuth, async (req, res) => {
+	let notice = await userController.getNotice(req.params.NoticeID);
+	const html = renderTemplate('public/user/NoiDungBaiDang.pug', {
+		notice: notice.result
 	});
 	res.send(html);
 });

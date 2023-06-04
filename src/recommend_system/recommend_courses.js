@@ -13,6 +13,7 @@ class RecommendationSystem {
     this.finalMatrix = [];
     this.courseMatrix = [];
     this.model = null;
+    this.courses = [];
   }
 
   async loadCsv(file) {
@@ -45,6 +46,7 @@ class RecommendationSystem {
       if (this.results[i]["PastCourses"] !== "NULL") {
         const courses = this.results[i]["PastCourses"].split(",");
         for (let course of courses) {
+          this.courses.push(course);
           matrix[i][Number(course) - 1] = 1;
         }
       }

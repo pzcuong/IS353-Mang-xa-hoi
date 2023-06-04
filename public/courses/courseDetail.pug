@@ -1,0 +1,148 @@
+extends ../header.pug
+
+block title
+  title #{user.FullName} - #{user.UserType}
+
+block append css
+  //-link(rel='stylesheet' href='/public/source/fonts/fontawesome-free-6.2.0-web/css/all.css')
+  link(rel='stylesheet' href='/public/source/css/lesson.css')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+
+block append script
+  script(src='https://kit.fontawesome.com/7b85820244.js' crossorigin='anonymous')
+  script(src='/public/source/js/lesson-course.js')
+
+block content  
+    .main-wrapper
+      .main-course
+        
+          .content
+            .row
+              .col-12.col-lg-12.col-xl-8.d-flex
+                .flex-fill
+                  .course-view
+                    .title
+                      h3 #{course.CourseName}
+                    .title-sub
+                      h5 #{course.CourseDescription}
+                    .course-detail
+                      h4 Bạn sẽ học được gì?
+                      .course-detail-list
+                        ul.course-detail-list-ul
+                          li
+                            i.fa-solid.fa-check
+                            | Được học kiến thức
+                            |                             miễn phí với nội dung chất lượng hơn mất phí
+                          li
+                            i.fa-solid.fa-check
+                            | Các kiến thức nâng
+                            |                             cao của Javascript giúp code trở nên tối ưu hơn
+                          li
+                            i.fa-solid.fa-check
+                            | Hiểu được cách tư
+                            |                             duy nâng cao của các lập trình viên có kinh nghiệm
+                          li
+                            i.fa-solid.fa-check
+                            | Hiểu được các khái
+                            |                             niệm khó như từ khóa this, phương thức bind, call,
+                            |                             apply & xử lý bất đồng bộ
+                          li
+                            i.fa-solid.fa-check
+                            | Có nền tảng
+                            |                             Javascript vững chắc để làm việc với mọi thư viện,
+                            |                             framework viết bởi Javascript
+                          li
+                    .course-content
+                      .course-content-header
+                        h4 Nội dung khóa học
+                        .course-content-list
+                          .course-content-list-card
+                            - var index = 0;
+                            each module in course.modules
+                              - index++;
+                              .card
+                                h5 #{index}. #{module.module.ModuleName} <br>
+                                  each lesson in module.lessons
+                                    span(style="margin-left: 25px; font-weight: 100") #{lesson.LessonName}
+                                    a(href=`./lesson/${lesson.LessonID}/`) Vào Học
+                            
+                      .course-content-list
+                        div
+                    .course-request
+                      h4 Yêu cầu
+                      .course-request-list
+                        ul.course-request-list-ul
+                          li
+                          li
+                            i.fa-solid.fa-check
+                            |  Hoàn thành khóa
+                            |                             học Javascript cơ bản tại hoặc đã nắm chắc
+                            |                             Javascript cơ bản.
+                          li
+                          li
+                            i.fa-solid.fa-check
+                            | Tuy duy mở để dễ
+                            |                             dàng tiếp nhận các tư tưởng mới được chia sẻ trong
+                            |                             các bài học.
+                          li
+                          li
+                            i.fa-solid.fa-check
+                            | Ý thức cao, trách
+                            |                             nhiệm cao trong việc tự học. Thực hành lại sau mỗi
+                            |                             bài học.
+                          li
+                    .course-other
+                      .course-other-tilte
+                        h4 Khóa học bạn có thể quan tâm
+                      .course-other-list
+                        each course in recommend_courses
+                          .course-detail
+                            a.course-img(href=`../${course.CourseID}/`)
+                              img(src=`/public/source/img/course-${course.CourseID}.png` alt='')
+                            .course-name
+                              span #{course.CourseName} <br>
+                            .star-rating
+                              .star-widget.star-widget-1
+                                input#rate-5(type='radio' name='rate')
+                                label.fas.fa-star.start1(for='rate-5')
+                                input#rate-4(type='radio' name='rate')
+                                label.fas.fa-star.start2(for='rate-4')
+                                input#rate-3(type='radio' name='rate')
+                                label.fas.fa-star.start3(for='rate-3')
+                                input#rate-2(type='radio' name='rate')
+                                label.fas.fa-star.start4(for='rate-2')
+                                input#rate-1(type='radio' name='rate')
+                                label.fas.fa-star.start5(for='rate-1')
+                              .user-study
+                                i.fa-solid.fa-users
+                                span 350
+              .col-12.col-lg-12.col-xl-4.d-flex
+                .course-learn
+                  .course-learn-detail
+                    .course-learn-video
+                      iframe(width='300' height='200' src='https://www.youtube.com/embed/MGhw6XliFgo' title='YouTube video player' frameborder='0' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen='')
+                    h5 Miễn phí
+                    .course-learn-btn
+                      //- a(href='/lesson-course.html')
+                      button.btn(type='button', onclick='sendPostRequest()') Vào Học
+
+    script.
+      function sendPostRequest() {
+        var xhr = new XMLHttpRequest();
+
+        // Set the request URL and method
+        xhr.open('POST', `./`, true);
+
+        xhr.onload = function () {
+          if (xhr.status === 200) {
+            // Request successful, display the response
+            message = JSON.parse(xhr.responseText);
+            alert(message.message);
+          } else {
+            // Request failed, display an error message
+            alert('Error: ' + xhr.status);
+          }
+        };
+
+        xhr.send();
+      }

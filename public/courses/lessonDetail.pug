@@ -1,0 +1,78 @@
+extends ../header.pug
+
+block title
+  title #{user.FullName} - #{user.UserType}
+
+block append css
+  link(rel='stylesheet' href='/public/source/fonts/fontawesome-free-6.2.0-web/css/all.css')
+  link(rel='stylesheet' href='/public/source/css/lesson-course.css')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+
+block append script
+  script(src='https://kit.fontawesome.com/7b85820244.js' crossorigin='anonymous')
+  script(src='/public/source/js/lesson-course.js')
+
+block content  
+    .main-wrapper
+      .main-course
+        .header-course-title
+          .forum-form-detail
+            a.course-link(href='')
+              i.fa-solid.fa-book(style='color: #021f96')
+              span.name-course #{lesson.LessonName}
+              span.name-course - Bài 1
+      .forum-form
+        p #{lesson.LessonContent}
+      .forum-form
+        .comment-title
+          h2 Bình luận
+        .user-comment-form
+          each comment in comments
+            .all-comment
+              .comment-user
+                .user
+                  .user-avatar
+                    img(src='/public/source/img/user-avatar.jpg' alt='')
+                .comment-form
+                  .user-name-cmt
+                    span #{comment.comment.UserID}
+                  .user-comment
+                    p #{comment.comment.Comment}
+              .reply
+                a.reply-comment(id=`${comment.comment.CommentID}` href='javascript:void(0);' onclick='toggleReply(this)')
+                  span Trả lời
+               
+                
+                a.see-comment
+                 
+                .reply-box
+
+              each reply in comment.comment.replies
+                .reply-all-comment
+                  .comment-user
+                    .user
+                      .user-avatar
+                        img(src='/public/source/img/user-avatar.jpg' alt='')
+                    .comment-form
+                      .user-name-cmt
+                        span(style="margin-bottom=20px") #{reply.UserID}
+                      .user-comment
+                        p #{reply.Reply}
+                  .reply
+        
+
+          .all-comment-next
+            .comment-user
+              .user
+                .user-avatar
+                  img(src='/public/source/img/user-avatar.jpg' alt='')
+              .comment-form
+                .user-name-cmt
+                  span Hung Do
+                .comment-box
+                  form(id='formElem')
+                    textarea(id='textarea-comment' name='comment' placeholder='Viết bình luận')
+                    button.comment-submit(type='button' onclick='postComment(); return false;') Bình luận
+
+
+

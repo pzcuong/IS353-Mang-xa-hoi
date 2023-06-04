@@ -7,16 +7,16 @@ async function ThemTaiKhoan() {
 
     form = document.querySelector("#form");
     data = {
-      MaND: form.querySelector("input[id=MaND]").value,
-      HoTen: form.querySelector("input[id=HoTen]").value,
-      NgSinh: form.querySelector("input[id=NgSinh]").value,
+      UserID: form.querySelector("input[id=UserID]").value,
+      FullName: form.querySelector("input[id=FullName]").value,
+      DateOfBirth: form.querySelector("input[id=DateOfBirth]").value,
       Email: form.querySelector("input[id=Email]").value,
-      DiaChi: form.querySelector("input[id=DiaChi]").value,
-      Role: form.querySelector("select[id=Role]").value,
-      MaLop: form.querySelector("input[id=MaLop]").value,
+      Address: form.querySelector("input[id=Address]").value,
+      UserType: form.querySelector("select[id=UserType]").value,
+      Sex: "Male"
     }
     console.log(data)
-    let response = await fetch('/admin/ThemTaiKhoan', {
+    let response = await fetch('/admin/create_account', {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
@@ -25,38 +25,10 @@ async function ThemTaiKhoan() {
       json: true
     })
   
-    let text = await response.json();
-    alert(text.message);
+    let result = await response.json();
+    alert(result.message);
 
     document.getElementById("btnSave").disabled = false;
     document.getElementById("btnSave").innerHTML = "Xác nhận";
     document.getElementById("body-wrapper").style.filter = "blur(0px)";
-    
   }
-
-async function ThemVaiTro() {
-    form = document.querySelector("#form");
-    data = {
-        TenVaiTro: form.querySelector("input[id=TenVaiTro]").value,
-        HocSinh: form.querySelector("select[id=HocSinh]").value,
-        Lop: form.querySelector("select[id=Lop]").value,
-        MonHoc: form.querySelector("select[id=MonHoc]").value,
-        GiaoVien: form.querySelector("select[id=GiaoVien]").value,
-        ThongBao: form.querySelector("select[id=ThongBao]").value,
-        QuyDinh: form.querySelector("select[id=QuyDinh]").value,
-        BaoCao: form.querySelector("select[id=BaoCao]").value,
-        ThemVaiTro: form.querySelector("select[id=ThemVaiTro]").value,
-    }
-    console.log(data)
-    let response = await fetch('/admin/ThemVaiTro', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-        json: true
-    })
-
-    let text = await response.json();
-    alert(text.message);
-}

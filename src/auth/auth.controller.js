@@ -69,14 +69,14 @@ class AuthController {
 
         let user = await userModel.getUser(username);
 
-        if (user.statusCode === 200) {
+        if (user.statusCode === 200 && user.result !== undefined) {
             if (user.result.RefreshToken === 'NULL' || user.result.RefreshToken === null) {
                 const hashPassword = bcrypt.hashSync(process.env.DEFAULT_PASSWORD, SALT_ROUNDS);
                 let refreshToken = randToken.generate(24);
                 let SQLQueryInsert = `UPDATE Users 
                                         SET Hashpassword = '${hashPassword}',RefreshToken = '${refreshToken}' 
                                         WHERE UserID = '${username}'`;
-                await userModel.TruyVan("Admin", SQLQueryInsert);
+                await userModel.executeQuery("Admin", SQLQueryInsert);
                 user = await userModel.getUser(username);
             }
 

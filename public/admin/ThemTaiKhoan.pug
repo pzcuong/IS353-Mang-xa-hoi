@@ -33,14 +33,14 @@ block content
                           label
                             | Họ và tên
                             span.login-danger *
-                          input.form-control-edit(required='' type='text' placeholder='Nhập họ và tên...' id='HoTen')
+                          input.form-control-edit(required='' type='text' placeholder='Nhập họ và tên...' id='FullName')
                     
                       .submit-form
                         .form-group.local-form
                           label
                             | Giới tính
                             span.login-danger *
-                          select.form-control-edit(required='' id='GioiTinh')
+                          select.form-control-edit(required='' id='Sex')
                             option Nam
                             option Nữ
                             option Khác
@@ -49,7 +49,7 @@ block content
                           label
                             | Ngày sinh
                             span.login-danger *
-                          input.form-control-edit(required='' type='date' id = 'NgSinh')
+                          input.form-control-edit(required='' type='date' id = 'DateOfBirth')
                
                       .submit-form
                         .form-group.local-form
@@ -63,7 +63,7 @@ block content
                           label
                             | Địa chỉ
                             span.login-danger *
-                          input.form-control-edit(required='' type='text' placeholder='Nhập địa chỉ...' id='DiaChi')
+                          input.form-control-edit(required='' type='text' placeholder='Nhập địa chỉ...' id='Address')
                       
 
                       .submit-form
@@ -71,24 +71,16 @@ block content
                           label
                             | Mã số người dùng
                             span.login-danger *
-                          input.form-control-edit(required='' type='text' placeholder='Nhập mã số người dùng...' id="MaND")
-
-                      .submit-form
-                        .form-group.local-form
-                          label
-                            | Mã lớp học
-                            span.login-danger *
-                          input.form-control-edit(required='' type='text' placeholder='Nhập mã lớp học...' id="MaLop")
+                          input.form-control-edit(required='' type='text' placeholder='Nhập mã số người dùng...' id="UserID")
 
                       .submit-form
                         .form-group.local-form
                           label
                             | Loại người dùng
                             span.login-danger *
-                          select.form-control-edit(required='' id='Role')
-                            option(value="HocSinh") Học Sinh
-                            option(value="GiaoVien") Giáo Viên
-                            option(value="Admin") Quản Trị Viên
+                          select.form-control-edit(required='' id='UserType')
+                            option(value="student") Học Sinh
+                            option(value="instructor") Giáo Viên
 
                     .student-image
                       label  Tải lên ảnh chân dung của người dùng

@@ -199,11 +199,11 @@ async function ThemBaiDang() {
   var form = document.querySelector("#formElem");
 
   data = {
-    TieuDe: form.querySelector("input[name=TieuDe]").value, 
-    NoiDung: form.querySelector("textarea[name=NoiDung]").value,
+    Title: form.querySelector("input[name=TieuDe]").value, 
+    Content: form.querySelector("textarea[name=NoiDung]").value,
   }
 
-  let response = await fetch('/admin/ThemBaiDang', {
+  let response = await fetch('./post_notice', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',

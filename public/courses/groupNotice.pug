@@ -1,0 +1,37 @@
+extends ../header.pug
+
+block title
+  title Thông báo chung
+
+block content
+  section.home-section
+    .home-content
+      i.fa-solid.fa-bars
+  .page-wrapper
+    .content
+      .page-header
+        .page-header-title
+          .page-header-student-title
+            h3.page-title Diễn đàn thảo luận
+
+          a(href='../post_notice') Đăng thông báo
+
+      .student-form-view
+        .card
+          .card-table
+            .card-body
+              div
+                .row
+                  .card-body-content
+                    .view-content
+                      .item-list
+                        ul
+                          each ThongBao in community
+                              - var NgayDang = new Date(ThongBao.Date).toLocaleDateString('en-GB')
+                              li.view-row
+                                  .view-row-icon
+                                      i.fa-solid.fa-caret-right
+                                      - var href = '/user/notice/' + ThongBao.NoticeID + '/'
+                                      a(href=href) #{ThongBao.Title} - #{NgayDang}
+                          
+    script(src='/public/source/js/main.js')

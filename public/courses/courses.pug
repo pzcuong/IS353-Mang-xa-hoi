@@ -1,0 +1,156 @@
+extends ../header.pug
+
+block title
+  title #{user.FullName} - #{user.UserType}
+
+block append css
+  link(rel='stylesheet' href='/public/source/fonts/fontawesome-free-6.2.0-web/css/all.css')
+  link(rel='stylesheet' href='/public/source/css/course.css')
+
+block append script
+  script(src='https://kit.fontawesome.com/7b85820244.js' crossorigin='anonymous')
+
+block content   
+    .main-wrapper
+      .main-course
+        .header-course-title
+          .heading-title
+            h2.title-1 Khóa Học
+            p
+              | Các khóa học được thiết kế phù hợp cho cả người mới, nhiều khóa
+              | học miễn phí, chất lượng, nội dung dễ hiểu.
+        .header-course-title
+          .heading-title
+            h2.title-1 Khóa Học Đã Học
+        .course
+          .all-course-detail
+            each course in courses 
+                if course.isBought
+                    .course-detail
+                        a.course-img(href=`./${course.CourseID}/`)
+                            img(src=`/public/source/img/course-${course.CourseID}.png` alt='')
+                        .course-name
+                            span #{course.CourseName} <br>
+                            span(style="font-weight: 100;display:block;width:280px") #{course.CourseDescription} <br>
+                        .star-rating
+                            .star-widget.star-widget-1
+                                input#rate-5(type='radio' name='rate')
+                                label.fas.fa-star.start1(for='rate-5')
+                                input#rate-4(type='radio' name='rate')
+                                label.fas.fa-star.start2(for='rate-4')
+                                input#rate-3(type='radio' name='rate')
+                                label.fas.fa-star.start3(for='rate-3')
+                                input#rate-2(type='radio' name='rate')
+                                label.fas.fa-star.start4(for='rate-2')
+                                input#rate-1(type='radio' name='rate')
+                                label.fas.fa-star.start5(for='rate-1')
+                        .user-study
+                            i.fa-solid.fa-users
+                            span 350
+      .main-course
+        .header-course-title
+          .heading-title
+            h2.title Khóa Học Dành Cho Bạn
+        .course
+          .all-popular-course-detail
+            each course in recommend_courses  
+                - var bought = false;
+                each item in courses 
+                    if item.CourseID == course.CourseID && item.isBought == true
+                        - bought = true;      
+                if bought == false
+                    .course-detail
+                        a.course-img(href=`./${course.CourseID}/`)
+                            img(src=`/public/source/img/course-${course.CourseID}.png` alt='')
+                        .course-name
+                            span #{course.CourseName} <br>
+                            span(style="font-weight: 100;display:block;width:280px") #{course.CourseDescription} <br>
+
+                        .star-rating
+                            .star-widget.star-widget-1
+                            input#rate-5(type='radio' name='rate')
+                            label.fas.fa-star.start1(for='rate-5')
+                            input#rate-4(type='radio' name='rate')
+                            label.fas.fa-star.start2(for='rate-4')
+                            input#rate-3(type='radio' name='rate')
+                            label.fas.fa-star.start3(for='rate-3')
+                            input#rate-2(type='radio' name='rate')
+                            label.fas.fa-star.start4(for='rate-2')
+                            input#rate-1(type='radio' name='rate')
+                            label.fas.fa-star.start5(for='rate-1')
+                        .user-study
+                            i.fa-solid.fa-users
+                            span 350
+      .main-course
+        .header-course-title
+          .heading-title
+            h2.title Tất Cả Khóa Học 
+        .course
+          .all-popular-course-detail
+            each course in courses
+                .course-detail
+                    a.course-img(href=`./${course.CourseID}/`)
+                        img(src=`/public/source/img/course-${course.CourseID}.png` alt='')
+                    .course-name
+                        span #{course.CourseName} <br>
+                        span(style="font-weight: 100;display:block;width:280px") #{course.CourseDescription} <br>
+                        if course.isBought
+                            span(style="color: red") Đã Mua
+                        else 
+                            span(style="color: green") Tham Gia Học
+                    .star-rating
+                        .star-widget.star-widget-1
+                            input#rate-5(type='radio' name='rate')
+                            label.fas.fa-star.start1(for='rate-5')
+                            input#rate-4(type='radio' name='rate')
+                            label.fas.fa-star.start2(for='rate-4')
+                            input#rate-3(type='radio' name='rate')
+                            label.fas.fa-star.start3(for='rate-3')
+                            input#rate-2(type='radio' name='rate')
+                            label.fas.fa-star.start4(for='rate-2')
+                            input#rate-1(type='radio' name='rate')
+                            label.fas.fa-star.start5(for='rate-1')
+                    .user-study
+                        i.fa-solid.fa-users
+                        span 350
+
+      .main-course
+        .header-course-title
+          .heading-title
+            h2.title Danh Sách Các Cộng Đồng Học Tập 
+        .course
+          .all-popular-course-detail
+            - var index = 0;
+            each community in community_detect
+              - index++;
+              .course-detail
+                a.course-img(href='../recommend_group/')
+                  img(src='/public/source/img/group.jpeg' alt='')
+                .course-name
+                  span Cộng đồng số #{index} <br>
+                  span(style="font-weight: 100;display:block;width:280px") Số lượng thành viên: #{community.length} (#{community}) <br>
+                if community.includes(user.UserID)
+                  .join-group
+                    a.join-group-btn(style='color:red') Đã Tham Gia
+                else 
+                  .join-group
+                    a.join-group-btn Tham Gia
+
+      .main-course
+        .header-course-title
+          .heading-title
+            h2.title Những Người Bạn Có Thể Biết
+        .course
+          .all-popular-user-detail
+            for user in recommend_users
+              .user-course-detail
+                a.user-img-cnt(href=`../profile/${user.UserID}/`)
+                  img(src='/public/source/img/user-avatar.jpg' alt='')
+                  .user-same
+                    p #{user.FullName} (#{user.UserID}) <br>
+                .join-group
+                  a.user-img-cnt(href='#')
+                  a.join-group-btn Số khóa học chung: #{user.count_same_courses}
+
+           
+    script(src='/public/source/js/course.js')

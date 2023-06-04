@@ -106,6 +106,16 @@ class User {
         return this.returnMessage(result);
     }
 
+    async getUserSameCourse(username1, username2) {
+        let sql = `SELECT count(a.courseid) as num_courses
+        FROM user_courses AS a
+        JOIN user_courses AS b ON a.courseid = b.courseid
+        WHERE a.userid = N'${username1}' AND b.userid = N'${username2}';
+        `
+        const result = await this.executeQuery("Admin", sql);
+        return this.returnMessage(result);
+    }
+
     async createUser(data, role) {
         const SQLQuery = `insert into Users 
             (UserID, Email, HashPassword, RefreshToken, SignUpDate, UserType) 
@@ -159,6 +169,13 @@ class User {
             });
         }
 
+        if (courseDetail.result.length === 0) 
+            return {
+                statusCode: 404,
+                message: 'Không tìm thấy khóa học',
+                alert: 'Không tìm thấy khóa học'
+            };
+        
         courseDetail.result[0].modules = modules;
         return this.returnMessage(courseDetail);
     }
@@ -166,7 +183,18 @@ class User {
     async joinCourse(UserID, CourseID) {
         const sql_statement = `insert into User_Courses (UserID, CourseID) values (N'${UserID}', N'${CourseID}')`;
         const result = await this.executeQuery("Admin", sql_statement); 
-        return this.returnMessage(result);
+        if (result.statusCode === 200) 
+            return {
+                result: result.result,
+                statusCode: 200,
+                message: 'Thành công',
+            }
+        else 
+            return {
+                statusCode: 400,
+                message: 'Bạn đã tham gia khóa học này',
+                result: null
+            }
     }
 
     async getLessonDetail(LessonID) {
@@ -181,9 +209,10 @@ class User {
         for(let i = 0; i < commentDetail.result.length; i++) {
             let comment = commentDetail.result[i];
             let replyDetail = await this.executeQuery("Admin", `select * from Replies where CommentID = N'${comment.CommentID}'`);
+            comment.replies = replyDetail.result;
             comments.push({
                 comment: comment,
-                replies: replyDetail.result
+                // replies: replyDetail.result
             });
         }
 
@@ -193,16 +222,38 @@ class User {
 
     async postComment(UserID, LessonID, Content) {
         const sql_statement = `insert into Comments (UserID, LessonID, Comment, CommentDate) 
-            values (N'${UserID}', N'${LessonID}', N'${Content}', 'GETDATE()')`;
+            values (N'${UserID}', N'${LessonID}', N'${Content}', GETDATE())`;
         const result = await this.executeQuery("Admin", sql_statement);
-        return this.returnMessage(result);
+        if (result.statusCode === 200) 
+            return {
+                result: result.result,
+                statusCode: 200,
+                message: 'Bình luận thành công',
+            }
+        else 
+            return {
+                statusCode: 400,
+                message: 'Bình luận thất bại',
+                result: null
+            }
     }
 
     async postReply(UserID, CommentID, Content) {
         const sql_statement = `insert into Replies (UserID, CommentID, Reply, ReplyDate)
-            values (N'${UserID}', N'${CommentID}', N'${Content}', 'GETDATE()')`;
+            values (N'${UserID}', N'${CommentID}', N'${Content}', GETDATE())`;
         const result = await this.executeQuery("Admin", sql_statement);
-        return this.returnMessage(result);
+        if (result.statusCode === 200)
+            return {
+                result: result.result,
+                statusCode: 200,
+                message: 'Trả lời thành công',
+            }
+        else
+            return {
+                statusCode: 400,
+                message: 'Trả lời thất bại',
+                result: null
+            }
     }
 
     async createDatasetRecommendCourses() {
@@ -254,7 +305,43 @@ class User {
             true // return array
         )
     }
-                
+
+    async getNoticeGroup() {
+        const sql_statement = `SELECT * FROM GroupNotice`;
+
+        return this.returnMessage(
+            await this.executeQuery("Admin", sql_statement),
+            true // return array
+        )
+    }
+
+    async postNoticeGroup(data) {
+        const sql_statement = `INSERT INTO GroupNotice (Title, Content, Date) 
+            VALUES (N'${data.Title}', N'${data.Content}', GETDATE())`;
+
+        const result = await this.executeQuery("Admin", sql_statement);
+        if (result.statusCode === 200)
+            return {
+                result: result.result,
+                statusCode: 200,
+                message: 'Thành công',
+            }
+        else
+            return {
+                statusCode: 400,
+                message: 'Thất bại',
+                result: null
+            }
+    }
+    
+    async getNotice(NoticeID) {
+        const sql_statement = `SELECT * FROM GroupNotice WHERE NoticeID = N'${NoticeID}'`;
+
+        return this.returnMessage(
+            await this.executeQuery("Admin", sql_statement)
+        )
+    }
+
 }
 
 module.exports = new User();

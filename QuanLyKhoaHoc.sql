@@ -86,6 +86,13 @@ CREATE TABLE Replies (
     FOREIGN KEY (UserID) REFERENCES Users(UserID)
 );
 
+CREATE TABLE GroupNotice (
+    NoticeID INT IDENTITY(1,1) PRIMARY KEY,
+    Title NVARCHAR(100),
+    Content NVARCHAR(MAX),
+    Date DATETIME DEFAULT GETDATE(),
+);
+
 
 INSERT INTO Users (UserID, Email, HashPassword, RefreshToken, SignUpDate, UserType)
 VALUES ('admin', 'pzcuonguit@gmail.com', 'NULL', 'NULL', GETDATE(), 'instructor');
